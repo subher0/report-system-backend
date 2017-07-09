@@ -10,6 +10,7 @@ public class HibernateSessionService {
 
   private SessionFactory sessionFactory;
 
+  //TODO: set up production conection pool
   public HibernateSessionService() {
     sessionFactory = new Configuration().configure("hibernate.cfg.xml")
         .setProperty("hibernate.connection.url",
