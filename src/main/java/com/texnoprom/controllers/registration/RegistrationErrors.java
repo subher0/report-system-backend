@@ -1,4 +1,4 @@
-package com.texnoprom.controllers;
+package com.texnoprom.controllers.registration;
 
 /**
  * Created by farid on 5/19/17.

@@ -1,7 +1,8 @@
 package com.texnoprom.services;
 
-import com.texnoprom.database.dao.UserDaoImpl;
+import com.texnoprom.database.dao.authentication.UserDaoImpl;
 import com.texnoprom.database.entities.User;
+import com.texnoprom.database.exceptions.DuplicateException;
 import javax.transaction.Transactional;
 import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class AccountService {
     this.userDao = userDao;
   }
 
-  public User addUser(User user) {
+  public User addUser(User user) throws DuplicateException {
       return userDao.save(user);
   }
 
@@ -26,7 +27,6 @@ public class AccountService {
     try {
       return userDao.findByLogin(login);
     } catch (HibernateException ex) {
-      ex.printStackTrace();
       return null;
     }
   }
@@ -35,7 +35,6 @@ public class AccountService {
     try {
       return userDao.findByUserId(userId);
     } catch (HibernateException ex) {
-      ex.printStackTrace();
       return null;
     }
   }
@@ -44,24 +43,21 @@ public class AccountService {
     try {
       return userDao.findAll();
     } catch (HibernateException ex) {
-      ex.printStackTrace();
       return null;
     }
   }
 
-  public void updateUser(User user) {
+  public void updateUser(User user) throws DuplicateException {
     try {
       userDao.update(user);
-    } catch (HibernateException ex) {
-      ex.printStackTrace();
+    } catch (HibernateException ignore) {
     }
   }
 
   public void deleteUser(User user) {
     try {
       userDao.delete(user);
-    } catch (HibernateException ex) {
-      ex.printStackTrace();
+    } catch (HibernateException ignore) {
     }
   }
 }

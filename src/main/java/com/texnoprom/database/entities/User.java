@@ -33,7 +33,7 @@ public class User {
   public User() {
   }
 
-  public User(String name, String email) {
+  public User(String name, String password) {
     this.name = name;
     final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     this.password = encoder.encode(password);

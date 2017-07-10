@@ -14,5 +14,6 @@
       update
     </property>
     <mapping class="com.texnoprom.database.entities.User"/>
+    <mapping class="com.texnoprom.database.entities.MainACPProperties"/>
   </session-factory>
 </hibernate-configuration>

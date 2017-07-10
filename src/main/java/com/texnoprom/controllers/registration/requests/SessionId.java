@@ -1,4 +1,4 @@
-package com.texnoprom.controllers.requests;
+package com.texnoprom.controllers.registration.requests;
 
 /**
  * Created by farid on 5/21/17.

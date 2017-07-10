@@ -1,14 +1,18 @@
-package com.texnoprom.database.dao;
+package com.texnoprom.database.dao.authentication;
 
 import com.texnoprom.database.entities.User;
+import com.texnoprom.database.exceptions.DuplicateException;
+import com.texnoprom.database.exceptions.ErrorMessages;
 import com.texnoprom.services.HibernateSessionService;
 import java.util.ArrayList;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+//FIXME: Crash when adding same user
 @SuppressWarnings("unchecked")
 @Repository
 public class UserDaoImpl implements UserDao {
@@ -20,12 +24,14 @@ public class UserDaoImpl implements UserDao {
   }
 
   @Override
-  public User save(User user){
+  public User save(User user) throws DuplicateException {
     try (final Session session = hibernateSessionService.getSessionFactory().openSession()) {
       final Transaction transaction = session.beginTransaction();
       user.setUserId((Integer) session.save(user));
       transaction.commit();
       return user;
+    } catch (ConstraintViolationException ex) {
+      throw new DuplicateException(ErrorMessages.DUBLICATE_ERROR, ex);
     }
   }
 
@@ -33,8 +39,8 @@ public class UserDaoImpl implements UserDao {
   public User findByLogin(String login) {
     try (final Session session = hibernateSessionService.getSessionFactory().openSession()) {
       final Transaction transaction = session.beginTransaction();
-      final Query query = session.createQuery("from User user where user.login = :login");
-      query.setParameter("login", login);
+      final Query query = session.createQuery("from User user where user.name = :name");
+      query.setParameter("name", login);
       final User user = (User) query.uniqueResult();
       transaction.commit();
       return user;
@@ -64,11 +70,13 @@ public class UserDaoImpl implements UserDao {
   }
 
   @Override
-  public void update(User user) {
+  public void update(User user) throws DuplicateException {
     try (final Session session = hibernateSessionService.getSessionFactory().openSession()) {
       final Transaction transaction = session.beginTransaction();
       session.update(user);
       transaction.commit();
+    } catch (ConstraintViolationException ex) {
+      throw new DuplicateException(ErrorMessages.DUBLICATE_ERROR, ex);
     }
   }
 

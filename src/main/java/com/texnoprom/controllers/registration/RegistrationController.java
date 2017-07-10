@@ -1,13 +1,14 @@
-package com.texnoprom.controllers;
+package com.texnoprom.controllers.registration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.texnoprom.controllers.requests.AuthenticationRequest;
-import com.texnoprom.controllers.requests.RegistrationRequest;
-import com.texnoprom.controllers.requests.SessionId;
+import com.texnoprom.controllers.registration.requests.AuthenticationRequest;
+import com.texnoprom.controllers.registration.requests.RegistrationRequest;
+import com.texnoprom.controllers.registration.requests.SessionId;
 import com.texnoprom.database.entities.User;
+import com.texnoprom.database.exceptions.DuplicateException;
 import com.texnoprom.services.AccountService;
 import com.texnoprom.services.SessionService;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+//TODO: Split in 2 classes
 @CrossOrigin(origins = {"*"})
 @RestController
 public class RegistrationController {
@@ -116,9 +118,9 @@ public class RegistrationController {
 
     User user = new User(name, password);
 
-    user = accountService.addUser(user);
-
-    if (user == null) {
+    try {
+      user = accountService.addUser(user);
+    } catch (DuplicateException ex) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(RegistrationErrors
           .getErrorMessage(RegistrationErrors.EXISTING_USER));
     }
@@ -183,7 +185,12 @@ public class RegistrationController {
         user.setPassword(body.getPassword());
       }
 
-      accountService.updateUser(user);
+      try {
+        accountService.updateUser(user);
+      } catch (DuplicateException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(RegistrationErrors
+            .getErrorMessage(RegistrationErrors.EXISTING_USER));
+      }
       return ResponseEntity.ok(user.toJSON());
     }
 
@@ -224,6 +231,7 @@ public class RegistrationController {
 
     for (User user : userList) {
       final ObjectNode entry = mapper.createObjectNode();
+      entry.put("name", user.getName());
       userJsonList.add(entry);
     }
 
